@@ -61,16 +61,33 @@ bool ATestUDP::StartUDPReceiver(const FString& YourChosenSocketName, const FStri
 	return true;
 }
 
+FString BytesToStringFixed(const uint8 *In, int32 Count)
+{
+	FString Broken = BytesToString(In, Count);
+	FString Fixed;
+
+	for (int i = 0; i < Broken.Len(); i++)
+	{
+		const TCHAR c = Broken[i] - 1;
+		Fixed.AppendChar(c);
+	}
+
+	return Fixed;
+}
+
+
 void ATestUDP::Recv(const FArrayReaderPtr& ArrayReaderPtr, const FIPv4Endpoint& EndPt)
 {
 	UE_LOG(LogTemp, Warning, TEXT("Received bytes"))
 		//ScreenMsg("Received bytes", ArrayReaderPtr->Num());
 
-	FString Data;
-	*ArrayReaderPtr << Data;		//Now de-serializing! See AnyCustomData.h
+	TArray<uint8> Data;
+	Data.AddUninitialized(ArrayReaderPtr->TotalSize());
+	ArrayReaderPtr->Serialize(Data.GetData(), ArrayReaderPtr->TotalSize());
+	//*ArrayReaderPtr << Data;		//Now de-serializing! See AnyCustomData.h
 
 	//BP Event
-	BPEvent_DataReceived(Data);
+	OnDataReceived(Data, BytesToStringFixed(Data.GetData(), ArrayReaderPtr->TotalSize()));
 }
 
 
@@ -90,3 +107,4 @@ void ATestUDP::EndPlay(const EEndPlayReason::Type EndPlayReason)
 		ISocketSubsystem::Get(PLATFORM_SOCKETSUBSYSTEM)->DestroySocket(ListenSocket);
 	}
 }
+

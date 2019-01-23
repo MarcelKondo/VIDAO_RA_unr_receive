@@ -1,4 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
+// Based on Rama's RamaUDPReceiver
+// Edited by MKondo
+
 
 #pragma once
 
@@ -37,7 +40,7 @@ public:
 	void Recv(const FArrayReaderPtr& ArrayReaderPtr, const FIPv4Endpoint& EndPt);
 
 	UFUNCTION(BlueprintImplementableEvent)
-		void BPEvent_DataReceived(const FString& ReceivedData);
+		void OnDataReceived(const TArray<uint8>& AsBytes, const FString& AsString);
 
 
 	/** Called whenever this actor is being removed from a level */
