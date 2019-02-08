@@ -8,7 +8,7 @@ UJSonComp::UJSonComp()
 {
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
-	PrimaryComponentTick.bCanEverTick = true;
+	PrimaryComponentTick.bCanEverTick = false;
 
 	// ...
 }
@@ -21,6 +21,7 @@ void UJSonComp::BeginPlay()
 
 	// ...
 	
+	
 }
 
 
@@ -32,13 +33,28 @@ void UJSonComp::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompon
 	// ...
 }
 
-bool UJSonComp::JsonStringToStruct(
+bool UJSonComp::JsonStringToObject(
 	const FString & JsonString,
-	const UStruct * Struct
+	TSharedPtr<FJsonObject> &OutJsonObject
 ){
-	TSharedPtr<FJsonObject> JsonObject = MakeShareable(new FJsonObject);
 	TSharedRef< TJsonReader<> > Reader = TJsonReaderFactory<>::Create(JsonString);
+	if (FJsonSerializer::Deserialize(Reader, OutJsonObject))
+	{
+		return true;
+	}
+	
+	
 	//FJsonObjectConverter::JsonObjectStringToUStruct(JsonString, &Struct, 0, 0);
 	/*FJsonSerializer::Deserialize(Reader, JsonObject)*/
-	return true;
+	return false;
+}
+
+const FVector UJSonComp::GetJsonVectorField(const FString & JsonString, FString & FieldName) {
+
+	TSharedPtr<FJsonObject> JsonObject;
+	JsonStringToObject(JsonString, JsonObject);
+	TSharedPtr<FJsonObject> VectorObj = JsonObject->GetObjectField(FieldName);
+	FVector Vector = FVector(VectorObj->GetNumberField("x"), VectorObj->GetNumberField("y"), VectorObj->GetNumberField("z"));
+
+	return Vector;
 }

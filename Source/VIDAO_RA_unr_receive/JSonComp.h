@@ -6,7 +6,6 @@
 #include "Components/ActorComponent.h"
 #include "Json.h"
 #include "JsonUtilities.h"
-#include "JsonObjectConverter.h"
 #include "JSonComp.generated.h"
 
 
@@ -21,14 +20,18 @@ public:
 	
 
 	UFUNCTION(BlueprintCallable, Category = "Json")
-	bool JsonStringToStruct(
+	const FVector GetJsonVectorField(const FString & JsonString, FString & FieldName);
+
+	bool JsonStringToObject(
 			const FString & JsonString,
-			const UStruct * Struct
+			TSharedPtr<FJsonObject> & OutJsonObject
 	);
 	
 protected:	
 	// Called when the game starts
 	virtual void BeginPlay() override;
+
+	
 
 public:	
 	// Called every frame
