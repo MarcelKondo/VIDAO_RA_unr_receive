@@ -23,11 +23,18 @@ public:
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+	FString BytesToStringFixed(const uint8 *In, int32 Count);
 
 
 public:
+	
+
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = UDP)
+		int port = 55555;
+
 	FSocket* ListenSocket;
 	FUdpSocketReceiver* UDPReceiver = nullptr;
 

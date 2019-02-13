@@ -1,36 +1,34 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-#include "TestUDP.h"
+#include "UDPComponent.h"
 
 
 
-
-// Sets default values
-ATestUDP::ATestUDP()
+// Called every frame
+void UUDPComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
-	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
+	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+
+	// ...
+}
+
+UUDPComponent::UUDPComponent()
+{
+	PrimaryComponentTick.bCanEverTick = false;
 	ListenSocket = NULL;
-	PrimaryActorTick.bCanEverTick = true;
 	//Socket = new FSocket(SOCKTYPE_Datagram);
 
 }
 
 // Called when the game starts or when spawned
-void ATestUDP::BeginPlay()
+void UUDPComponent::BeginPlay()
 {
 	Super::BeginPlay();
 	StartUDPReceiver("", "0.0.0.0", port);
 }
 
-// Called every frame
-void ATestUDP::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
 
-}
-
-
-bool ATestUDP::StartUDPReceiver(const FString& YourChosenSocketName, const FString& TheIP, const int32 ThePort) {
+bool UUDPComponent::StartUDPReceiver(const FString& YourChosenSocketName, const FString& TheIP, const int32 ThePort) {
 	UE_LOG(LogTemp, Warning, TEXT("Starting UDP Receiver"))
 
 		//~~~
@@ -53,15 +51,15 @@ bool ATestUDP::StartUDPReceiver(const FString& YourChosenSocketName, const FStri
 
 	check(ListenSocket != nullptr)
 
-	FTimespan ThreadWaitTime = FTimespan::FromMilliseconds(100);
+		FTimespan ThreadWaitTime = FTimespan::FromMilliseconds(100);
 	UDPReceiver = new FUdpSocketReceiver(ListenSocket, ThreadWaitTime, TEXT("UDP Receiver"));
-	UDPReceiver->OnDataReceived().BindUObject(this, &ATestUDP::Recv);
+	UDPReceiver->OnDataReceived().BindUObject(this, &UUDPComponent::Recv);
 	UDPReceiver->Start();
 
 	return true;
 }
 
-FString ATestUDP::BytesToStringFixed(const uint8 *In, int32 Count)
+FString UUDPComponent::BytesToStringFixed(const uint8 *In, int32 Count)
 {
 	FString Broken = BytesToString(In, Count);
 	FString Fixed;
@@ -76,22 +74,25 @@ FString ATestUDP::BytesToStringFixed(const uint8 *In, int32 Count)
 }
 
 
-void ATestUDP::Recv(const FArrayReaderPtr& ArrayReaderPtr, const FIPv4Endpoint& EndPt)
+void UUDPComponent::Recv(const FArrayReaderPtr& ArrayReaderPtr, const FIPv4Endpoint& EndPt)
 {
 	UE_LOG(LogTemp, Warning, TEXT("Received bytes"))
 		//ScreenMsg("Received bytes", ArrayReaderPtr->Num());
 
-	TArray<uint8> Data;
+		TArray<uint8> Data;
 	Data.AddUninitialized(ArrayReaderPtr->TotalSize());
 	ArrayReaderPtr->Serialize(Data.GetData(), ArrayReaderPtr->TotalSize());
 	//*ArrayReaderPtr << Data;		//Now de-serializing! See AnyCustomData.h
 
 	//BP Event
-	OnDataReceived(Data, BytesToStringFixed(Data.GetData(), ArrayReaderPtr->TotalSize()));
+	
+	OnDataReceived.Broadcast(Data, BytesToStringFixed(Data.GetData(), ArrayReaderPtr->TotalSize()));
+	
 }
 
 
-void ATestUDP::EndPlay(const EEndPlayReason::Type EndPlayReason)
+
+void UUDPComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
 	Super::EndPlay(EndPlayReason);
 	//~~~~~~~~~~~~~~~~

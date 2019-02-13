@@ -19,15 +19,30 @@ public:
 	UJSonComp();
 	
 
-	UFUNCTION(BlueprintCallable, Category = "Json")
-	const FVector GetJsonVectorField(const FString & JsonString, FString & FieldName);
+	UFUNCTION(BlueprintPure, Category = "Json")
+		const FVector GetJsonVectorField(FString JsonString, FString FieldName);
+		
+	UFUNCTION(BlueprintPure, Category = "Json")
+		const FQuat GetJsonQuatField(FString JsonString, FString FieldName);
 
-	bool JsonStringToObject(
-			const FString & JsonString,
-			TSharedPtr<FJsonObject> & OutJsonObject
-	);
+	UFUNCTION(BlueprintPure, Category = "Json")
+		const FRotator GetJsonRotatorField(FString JsonString, FString FieldName);
+
+	UFUNCTION(BlueprintPure, Category = "Json")
+		int GetJsonIntField(FString JsonString, FString FieldName);
+
+	UFUNCTION(BlueprintPure, Category = "Json")
+		const FString GetJsonStringField(FString JsonString, FString FieldName);
+
+	UFUNCTION(BlueprintCallable, Category = "Json")
+		void JsonStringToPosRot(FString JsonString, FVector & Location, FRotator & Rotator);
 	
 protected:	
+	bool JsonStringToObject(
+		const FString & JsonString,
+		TSharedPtr<FJsonObject> & OutJsonObject
+	);
+
 	// Called when the game starts
 	virtual void BeginPlay() override;
 

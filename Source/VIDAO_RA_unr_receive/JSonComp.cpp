@@ -49,7 +49,7 @@ bool UJSonComp::JsonStringToObject(
 	return false;
 }
 
-const FVector UJSonComp::GetJsonVectorField(const FString & JsonString, FString & FieldName) {
+const FVector UJSonComp::GetJsonVectorField(FString JsonString, FString FieldName) {
 
 	TSharedPtr<FJsonObject> JsonObject;
 	JsonStringToObject(JsonString, JsonObject);
@@ -57,4 +57,44 @@ const FVector UJSonComp::GetJsonVectorField(const FString & JsonString, FString 
 	FVector Vector = FVector(VectorObj->GetNumberField("x"), VectorObj->GetNumberField("y"), VectorObj->GetNumberField("z"));
 
 	return Vector;
+}
+
+const FQuat UJSonComp::GetJsonQuatField(FString JsonString, FString FieldName) {
+
+	TSharedPtr<FJsonObject> JsonObject;
+	JsonStringToObject(JsonString, JsonObject);
+	TSharedPtr<FJsonObject> VectorObj = JsonObject->GetObjectField(FieldName);
+	FQuat Quat = FQuat(VectorObj->GetNumberField("w"), VectorObj->GetNumberField("x"), VectorObj->GetNumberField("y"), VectorObj->GetNumberField("z"));
+
+	return Quat;
+}
+
+const FRotator UJSonComp::GetJsonRotatorField(FString JsonString, FString FieldName)
+{
+	return GetJsonQuatField(JsonString, FieldName).Rotator();
+}
+
+int UJSonComp::GetJsonIntField(FString JsonString, FString FieldName)
+{
+	TSharedPtr<FJsonObject> JsonObject;
+	JsonStringToObject(JsonString, JsonObject);
+	return JsonObject->GetIntegerField(FieldName);
+	
+}
+
+const FString UJSonComp::GetJsonStringField(FString JsonString, FString FieldName)
+{
+	TSharedPtr<FJsonObject> JsonObject;
+	JsonStringToObject(JsonString, JsonObject);
+	return JsonObject->GetStringField(FieldName);
+}
+
+void UJSonComp::JsonStringToPosRot(FString JsonString, FVector & Location, FRotator & Rotation)
+{
+	TSharedPtr<FJsonObject> JsonObject;
+	JsonStringToObject(JsonString, JsonObject);
+	TSharedPtr<FJsonObject> VectorObj = JsonObject->GetObjectField("position");
+	Location = FVector(VectorObj->GetNumberField("x"), VectorObj->GetNumberField("y"), VectorObj->GetNumberField("z"));
+	VectorObj = JsonObject->GetObjectField("rotation");
+	Rotation = FQuat(VectorObj->GetNumberField("w"), VectorObj->GetNumberField("x"), VectorObj->GetNumberField("y"), VectorObj->GetNumberField("z")).Rotator();
 }
